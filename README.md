@@ -19,7 +19,7 @@ How to use –
 permissionManager = PermissionManager.getInstance(this);
 ```
 
-2. Execute it. 
+2. Call Execute ( This will check you dangerous permission from manifest, ask permission for user and return you callback based on user's action)
 
 ```java
 permissionManager.execute(new PermissionManager.PermissionListener() {
