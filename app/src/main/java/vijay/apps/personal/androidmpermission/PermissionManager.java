@@ -58,7 +58,7 @@ public class PermissionManager {
      * @param context - Activity context
      * @return - List of all dangerous permission
      */
-    private static LinkedList<String> getDangerousPermission(Context context) {
+    public static LinkedList<String> getDangerousPermission(Context context) {
 
         LinkedList<String> permissionList = new LinkedList<>();
         // Get the permissions for the core android package
@@ -98,20 +98,33 @@ public class PermissionManager {
                 listener.onErrorWhileGettingPermission("Error in getting Dangerous Permission");
             }
         }
-        PackageInfo packageInfo = null;
-        try {
-            packageInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(),
-                    PackageManager.GET_PERMISSIONS);
-        } catch (PackageManager.NameNotFoundException e) {
-            listener.onErrorWhileGettingPermission(e.getMessage());
+        String[] requestedPermissions =  getManifestPermission();
+        if(requestedPermissions == null) {
+            listener.onErrorWhileGettingPermission("Error while getting permission from manifest");
         }
-        String[] requestedPermissions = packageInfo.requestedPermissions;
         for (String permission : requestedPermissions) {
             int index = dangerousPermission.indexOf(permission);
             if (index != -1) {
                 checkPermission(permission, index);
             }
         }
+    }
+
+    /**
+     * Get your permission from manifest file.
+     *
+     * @return list of permissions listed in manifest file OR NULL if any error.
+     *
+     */
+    public String[] getManifestPermission() {
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(),
+                    PackageManager.GET_PERMISSIONS);
+        } catch (PackageManager.NameNotFoundException e) {
+              return null;
+        }
+        return packageInfo.requestedPermissions;
     }
 
     private void checkPermission(String permission, int index) {
@@ -139,17 +152,17 @@ public class PermissionManager {
     }
 
     /**
-     * Check app has given permission.
-     * @param perms -  permission to check.
+     * To Check app has given permission.
+     * @param permssion -  permission to check.
      * @return boolean indicating that app has given permission or not.
      */
-    public boolean hasPermissions(String perms) {
+    public boolean hasPermissions(String permssion) {
         // Always return true for SDK < M, let the system deal with the permissions
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
         }
 
-        return ContextCompat.checkSelfPermission(mContext, perms) ==
+        return ContextCompat.checkSelfPermission(mContext, permssion) ==
                 PackageManager.PERMISSION_GRANTED;
 
     }
